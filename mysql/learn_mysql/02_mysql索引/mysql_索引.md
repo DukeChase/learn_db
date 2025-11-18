@@ -36,7 +36,7 @@ mysql的数据一般以文件形式存储在磁盘上，检索需要磁盘I/O操
 
 图3中磁盘是一个 3个圆盘6个磁头，7个柱面（每个盘片7个磁道） 的磁盘，图3中每条磁道有12个扇区，所以此磁盘的容量为：
 
-存储容量 6 * 7 * 12 * 512 = 258048
+存储容量 6 *7* 12 * 512 = 258048
 
 > 每个磁道的扇区数一样是说的老的硬盘，外圈的密度小，内圈的密度大，每圈可存储的数据量是一样的。新的硬盘数据的密度都一致，这样磁道的周长越长，扇区就越多，存储的数据量就越大。
 
@@ -150,10 +150,10 @@ B+树是B-树的变体，也是一种多路搜索树, 它与 B- 树的不同之�
 
 ### 6、为什么使用 B+树
 
-1.  相对于 B 树 非叶子节点 没有数据， 一个页就能存更多的id， 可以大大减小层级。   每个节点能节点的范围更大更精确,I/O效率更高。
+1. 相对于 B 树 非叶子节点 没有数据， 一个页就能存更多的id， 可以大大减小层级。   每个节点能节点的范围更大更精确,I/O效率更高。
 2. Mysql是一种关系型数据库，区间访问是常见的一种情况，B+树叶节点增加的链指针,加强了区间访问性，可使用在范围区间查询等。
 
-  参考网上的回答：[数据库索引——B+树索引（为什么使用B+树作为MySql的索引结构，用什么好处？） - your_棒棒糖 - 博客园 (cnblogs.com)](https://www.cnblogs.com/Candycan/p/14810842.html)
+> 参考网上的回答：[数据库索引——B+树索引（为什么使用B+树作为MySql的索引结构，用什么好处？） - your_棒棒糖 - 博客园 (cnblogs.com)](https://www.cnblogs.com/Candycan/p/14810842.html)
 
 ## 三、为什么要使用索引
 
@@ -161,21 +161,16 @@ B+树是B-树的变体，也是一种多路搜索树, 它与 B- 树的不同之�
 
 2、建立在主键上的B+树结构可以快速查询出咱们的数据，那使用其他字段就一定要这么慢吗？
 
-
-
-
-
 ## 四、索引的数据结构
 
 ### 1、索引的数据结构
 
 ![image-20211220185740972](mysql_索引.assets/image-20211220185740972.ff0c4b5b.png)
 
-
-
 最顶层的叶子节点为常驻内存，这样旧可以减少一次io
 
-在数据库中，B+Tree的高度一般都在2~4层。mysql的innoDB存储引擎在设计时是将根节点常驻内存的，也就是说查找某一键值的行记录时最多只需要1~3次磁盘I/O操作。
+在数据库中，B+Tree的高度一般都在2~4层。  
+mysql的innoDB存储引擎在设计时是将根节点常驻内存的，也就是说查找某一键值的行记录时最多只需要1~3次磁盘I/O操作。
 
 ### 2、有了索引怎么查询
 
@@ -243,8 +238,6 @@ insert into subject(name,teacher_id) values('math',1),('Chinese',2),('English',3
 insert into student_score(student_id,subject_id,score) values(1,1,90),(1,2,60),(1,3,80),(1,4,100),(2,4,60),(2,3,50),(2,2,80),(2,1,90),(3,1,90),(3,4,100),(4,1,40),(4,2,80),(4,3,80),(4,5,100);
 ```
 
-
-
 ### 1、聚簇索引和非聚簇索引
 
 ![image-20201122163422044](mysql_索引.assets/image-20201122163422044.3237ed38.png)
@@ -260,7 +253,7 @@ insert into student_score(student_id,subject_id,score) values(1,1,90),(1,2,60),(
 
 **MyISAM使用的是非聚簇索引，**非聚簇索引的两棵B+树看上去没什么不同，节点的结构完全一致只是存储的内容不同而已，主键索引B+树的节点存储了主键，辅助键索引B+树存储了辅助键。表数据存储在独立的地方，这两颗B+树的叶子节点都使用一个地址指向真正的表数据，对于表数据来说，这两个键没有任何差别。由于索引树是独立的，通过辅助键检索无需访问主键的索引树。
 
-#### （1）使用聚簇索引的优势：
+#### （1）使用聚簇索引的优势
 
 1.由于行数据和聚簇索引的叶子节点存储在一起，同一页中会有多条行数据，访问同一数据页不同行记录时，已经把页加载到了Buffer中（缓存器），再次访问时，会在内存中完成访问，不必访问磁盘。这样主键和行数据是一起被载入内存的，找到叶子节点就可以立刻将行数据返回了，如果按照主键Id来组织数据，获得数据更快。
 
@@ -307,8 +300,6 @@ create table student_score(
  index idx_subject_id (subject_id)
 ); 
 ```
-
-
 
 > 小tips：
 
@@ -427,23 +418,12 @@ create table fulltext_test (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;1234567
 ```
 
-1
-2
-3
-4
-5
-6
-7
-
 2、在已存在的表上创建全文索引
 
 ```sql
 create fulltext index content_tag_fulltext
     on fulltext_test(content,tag);
 ```
-
-1
-2
 
 3、通过 SQL 语句 ALTER TABLE 创建全文索引
 
@@ -452,9 +432,6 @@ alter table fulltext_test
     add fulltext index content_tag_fulltext(content,tag);
 ```
 
-1
-2
-
 4、直接使用 DROP INDEX 删除全文索引
 
 ```sql
@@ -462,18 +439,12 @@ drop index content_tag_fulltext
     on fulltext_test;12
 ```
 
-1
-2
-
 5、通过 SQL 语句 ALTER TABLE 删除全文索引
 
 ```sql
 alter table fulltext_test
     drop index content_tag_fulltext;
 ```
-
-1
-2
 
 6、全文检索的语法
 
@@ -523,13 +494,9 @@ MySQL在5.7之后的版本支持了空间索引，而且支持OpenGIS几何数�
 alert table test add idx_clo1_col2 table (a1,a2,a3) 
 ```
 
-
-
 ```sql
 create index idx_clo1_col2 on table(a1,a2,a3);
 ```
-
-
 
 ### 8、hash索引
 
@@ -547,8 +514,6 @@ create index idx_clo1_col2 on table(a1,a2,a3);
 create index index_test using hash on test1(id);
 ```
 
-
-
 你会发现创建了也没有用，因为InnoDB和myIsam都不支持hash索引。
 
 ![image-20201130170655340](mysql_索引.assets/image-20201130170655340.e8a6028e.png)
@@ -563,21 +528,17 @@ create index index_test using hash on test1(id);
 select id from url where url = "www.baidu.com";
 ```
 
-
-
 若删除原来的url列上的索引，而新增一个被索引的url_crc列，使用crc32做hash函数，则可以使用如下方式查询：
 
 ```sql
 select id from url where url = "www.baidu.com" and url_crc=CRC32("www.baidu.com");
 ```
 
-
-
 这样做的话，性能就会有很大提升，因为mysql优化器会使用这个选择性高而体积很小的基于url_crc列的索引来完成查找。即使有多个记录相同的索引值，查找仍然很快，只需要根据hash值做快速的整数比较就能找到索引条目，然后一一返回对应的行。
 
 **缺点** 1、需要维护hash值，可以手动维护，也可以使用触发器实现。 2、若数据表非常大的话，CRC32（）会出现大量hash冲突，则可以自己实现一个64位的hash函数，这个自定义的hash函数要返回整数而不是字符串，因为范围整数，对此效率更高。一个简单的办法就是使用MD5（）函数返回值的一部分来作为自定义的hash函数。但是这可能比自己写一个hash算法性能要差一些。
 
-案例博客：https://segmentfault.com/a/1190000003741888
+案例博客：<https://segmentfault.com/a/1190000003741888>
 
 ## 四、navicat中创建索引
 
@@ -673,15 +634,13 @@ mysql查询只使用一个索引，因此如果where子句中已经使用了索�
 - 显然，如果值的差异性大，并且以等值查找（=、 <、>、in）为主，Hash索引是更高效的选择，它有O(1)的查找复杂度。
 - 如果值的差异性相对较差，并且以范围查找为主，B树是更好的选择，它支持范围查找。
 
-
-
 #### 6.面试回答问题
 
 为什么要建立索引？
 
 因为如果数据比较多的话， 一个个去遍历比较会比较慢。如果使用索引的话，索引是有组织过的数据。是有序的，可以更快的查到数据。有序的结构可以更快查到数据，例如，一个无需的数组，咱们需要遍历全部元素才可以查询到数据。但是如果排过数据，就可以二分查询。
 
-innoDB 当然不是使用数组的形式来构建数据，innoDB采用了 B + 树来进行构建数据，该数据结构，在每个节点上可以保存更多的关键字，来减少层级。这样可以减少IO次数。在叶子节点通过指针链接在一起。可以用来做范围查询。 同时，内存页加载到相邻数据更多，又进一步减少了访问IO次数。 磁盘IO是关系型数据库主要要解决的问题，解决了磁盘IO问题才可以更快响应应用程序。Mysql的索引很大一部分都是围绕这个点进行的。 
+innoDB 当然不是使用数组的形式来构建数据，innoDB采用了 B + 树来进行构建数据，该数据结构，在每个节点上可以保存更多的关键字，来减少层级。这样可以减少IO次数。在叶子节点通过指针链接在一起。可以用来做范围查询。 同时，内存页加载到相邻数据更多，又进一步减少了访问IO次数。 磁盘IO是关系型数据库主要要解决的问题，解决了磁盘IO问题才可以更快响应应用程序。Mysql的索引很大一部分都是围绕这个点进行的。
 
 [(37条消息) 为什么MySQL使用B+而不是使用B树、二叉树、AVL树呢？（来龙去脉的去理解）_王伟的博客-CSDN博客_mysql为什么用b+,不用b](https://blog.csdn.net/qq_36520235/article/details/94317993)
 
@@ -705,8 +664,6 @@ innoDB 当然不是使用数组的形式来构建数据，innoDB采用了 B + �
 ......
 ```
 
-
-
 ### 2、explain的执行效果
 
 ```sql
@@ -727,8 +684,6 @@ possible_keys: PRIMARY
 ******************************************************
 ```
 
-
-
 ### 3、explain包含的字段
 
 ```text
@@ -746,8 +701,6 @@ possible_keys: PRIMARY
 12. Extra //包含不适合在其它列中显示但十分重要的额外信息
 ```
 
-
-
 #### （1）id字段
 
 **1. id相同**
@@ -759,8 +712,6 @@ explain select subject.* from subject,student_score,teacher where subject.id = s
 读取顺序：subject > teacher > student_score
 ```
 
-
-
 ![image-20211220185904178](mysql_索引.assets/image-20211220185904178.23754ea6.png)
 
 **2. id不同**
@@ -771,8 +722,6 @@ explain select subject.* from subject,student_score,teacher where subject.id = s
 explain select score.* from student_score as score where subject_id =  (select id from subject where teacher_id = (select id from teacher where id = 2));
 读取顺序：teacher > subject > student_score
 ```
-
-
 
 ![image-20211220185917085](mysql_索引.assets/image-20211220185917085.26c148d2.png)
 
@@ -788,8 +737,6 @@ nion
  读取顺序：2.teacher > 2.subject > 1.subject > 1.teacher
 ```
 
-
-
 ![image-20211220185929385](mysql_索引.assets/image-20211220185929385.01a7907f.png)
 
 #### （2）select_type字段
@@ -802,8 +749,6 @@ nion
 explain select subject.* from subject,student_score,teacher where subject.id = student_id and subject.teacher_id = teacher.id;
 ```
 
-
-
 ![image-20211220185949668](mysql_索引.assets/image-20211220185949668.a206a040.png)
 
 **2. PRIMARY**
@@ -814,8 +759,6 @@ explain select subject.* from subject,student_score,teacher where subject.id = s
 explain select score.* from student_score as score where subject_id = (select id from subject where teacher_id = (select id from teacher where id = 2));
 ```
 
-
-
 ![image-20211220190000990](mysql_索引.assets/image-20211220190000990.b9749798.png)
 
 **3. SUBQUERY**
@@ -825,8 +768,6 @@ explain select score.* from student_score as score where subject_id = (select id
 例子：
 explain select score.* from student_score as score where subject_id = (select id from subject where teacher_id = (select id from teacher where id = 2));
 ```
-
-
 
 ![image-20211220190011526](mysql_索引.assets/image-20211220190011526.c55c03f5.png)
 
@@ -839,8 +780,6 @@ explain select score.* from student_score as score where subject_id = (select id
 MySQL5.7+ 进行优化了，增加了derived_merge（派生合并），默认开启，可加快查询效率
 ```
 
-
-
 **5. UNION**
 
 ```text
@@ -850,8 +789,6 @@ explain select subject.* from subject left join teacher on subject.teacher_id = 
  -> union 
  -> select subject.* from subject right join teacher on subject.teacher_id = teacher.id;
 ```
-
-
 
 ![image-20211220190022655](mysql_索引.assets/image-20211220190022655.fbcb13a5.png)
 
@@ -865,8 +802,6 @@ explain select subject.* from subject left join teacher on subject.teacher_id = 
  -> select subject.* from subject right join teacher on subject.teacher_id = teacher.id;
 ```
 
-
-
 ![image-20211220190032207](mysql_索引.assets/image-20211220190032207.191959be.png)
 
 #### （3）type字段
@@ -877,8 +812,6 @@ NULL>system>const>eq_ref>ref>fulltext>ref_or_null>index_merge>unique_subquery>in
 NULL>system>const>eq_ref>ref>ref_or_null>index_merge>range>index>ALL
 ```
 
-
-
 **1. NULL**
 
 ```text
@@ -886,8 +819,6 @@ MySQL能够在优化阶段分解查询语句，在执行阶段用不着再访问
 例子：
 explain select min(id) from subject;
 ```
-
-
 
 ![image-20211220190040931](mysql_索引.assets/image-20211220190040931.415a680d.png)
 
@@ -907,8 +838,6 @@ explain select min(id) from subject;
 explain select * from teacher where teacher_no = 'T2010001';
 ```
 
-
-
 ![image-20211220190050963](mysql_索引.assets/image-20211220190050963.5889db4d.png)
 
 **4. eq_ref**
@@ -918,8 +847,6 @@ explain select * from teacher where teacher_no = 'T2010001';
 例子：
 explain select subject.* from subject left join teacher on subject.teacher_id = teacher.id;
 ```
-
-
 
 ![image-20211220190059802](mysql_索引.assets/image-20211220190059802.86cdfcad.png)
 
@@ -933,8 +860,6 @@ explain select subject.* from subject left join teacher on subject.teacher_id = 
 explain select subject.* from subject,student_score,teacher where subject.id = student_id and subject.teacher_id = teacher.id;
 ```
 
-
-
 ![image-20211220190109040](mysql_索引.assets/image-20211220190109040.7592f0f1.png)
 
 **6. ref_or_null**
@@ -945,8 +870,6 @@ explain select subject.* from subject,student_score,teacher where subject.id = s
 explain select * from teacher where name = 'wangsi' or name is null;
 ```
 
-
-
 ![image-20211220190118650](mysql_索引.assets/image-20211220190118650.a4c59aa4.png)
 
 **7. index_merge**
@@ -956,8 +879,6 @@ explain select * from teacher where name = 'wangsi' or name is null;
 例子：
 explain select * from teacher where id = 1 or teacher_no = 'T2010001' .
 ```
-
-
 
 ![image-20211220190129635](mysql_索引.assets/image-20211220190129635.fb995207.png)
 
@@ -970,8 +891,6 @@ explain select * from teacher where id = 1 or teacher_no = 'T2010001' .
 explain select * from subject where id between 1 and 3;
 ```
 
-
-
 ![image-20211220190140237](mysql_索引.assets/image-20211220190140237.0513300b.png)
 
 **9. index**（全索引扫描）
@@ -983,8 +902,6 @@ Full index Scan，Index与All区别：index只遍历索引树，通常比All快
 explain select id from subject;
 ```
 
-
-
 ![image-20211220190149239](mysql_索引.assets/image-20211220190149239.5f833d80.png)
 
 **10. ALL**（全表扫）
@@ -995,8 +912,6 @@ Full Table Scan，将遍历全表以找到匹配行
 explain select * from subject;
 ```
 
-
-
 ![image-20211220190158161](mysql_索引.assets/image-20211220190158161.936afdb3.png)
 
 #### （4）table字段
@@ -1005,8 +920,6 @@ explain select * from subject;
 数据来自哪张表
 ```
 
-
-
 #### （5）possible_keys字段
 
 ```text
@@ -1014,16 +927,12 @@ explain select * from subject;
 查询涉及到的字段若存在索引，则该索引将被列出，但不一定被实际使用
 ```
 
-
-
 #### （6）key字段
 
 ```text
 实际使用到的索引，如果为NULL，则没有使用索引
 查询中若使用了覆盖索引（查询的列刚好是索引），则该索引仅出现在key列表
 ```
-
-
 
 #### （7）key_len字段
 
@@ -1034,15 +943,11 @@ key_len显示的值为索引字段最大的可能长度，并非实际使用长�
 即key_len是根据定义计算而得，不是通过表内检索出的
 ```
 
-
-
 #### （8）ref字段
 
 ```text
 显示索引的哪一列被使用了，如果可能的话，是一个常数，哪些列或常量被用于查找索引列上的值
 ```
-
-
 
 #### （9）rows字段
 
@@ -1068,8 +973,6 @@ key_len显示的值为索引字段最大的可能长度，并非实际使用长�
 包含不适合在其它列中显示但十分重要的额外信息
 ```
 
-
-
 1. **Using filesort**
 
 ```text
@@ -1078,8 +981,6 @@ MySQL中无法利用索引完成的排序操作称为“文件排序”
 例子：
 explain select * from subject order by name;
 ```
-
-
 
 ![image-20211220190212555](mysql_索引.assets/image-20211220190212555.1b4db533.png)
 
@@ -1093,11 +994,7 @@ explain select subject.* from subject left join teacher on subject.teacher_id = 
  -> select subject.* from subject right join teacher on subject.teacher_id = teacher.id;
 ```
 
-
-
 ![image-20211220190220539](mysql_索引.assets/image-20211220190220539.3dc53162.png)
-
-
 
 ```text
 表示相应的select操作中使用了覆盖索引（Covering Index）,避免访问了表的数据行，效率不错！
@@ -1108,8 +1005,6 @@ explain select subject.* from subject,student_score,teacher where subject.id = s
 备注：
 覆盖索引：select的数据列只用从索引中就能够取得，不必读取数据行，MySQL可以利用索引返回select列表中的字段，而不必根据索引再次读取数据文件，即查询列要被所建的索引覆盖
 ```
-
-
 
 ![image-20211220190229214](mysql_索引.assets/image-20211220190229214.0e36b860.png)
 
@@ -1131,8 +1026,6 @@ explain select subject.* from subject,student_score,teacher where subject.id = s
 explain select student.*,teacher.*,subject.* from student,teacher,subject;
 ```
 
-
-
 ![image-20211220190252786](mysql_索引.assets/image-20211220190252786.92be6455.png)
 
 **5. impossible where**
@@ -1142,8 +1035,6 @@ where子句的值总是false，不能用来获取任何元组
 例子：
 explain select * from teacher where name = 'wangsi' and name = 'lisi';
 ```
-
-
 
 ![image-20211220190304170](mysql_索引.assets/image-20211220190304170.89f489f0.png)
 
@@ -1155,8 +1046,6 @@ explain select * from teacher where name = 'wangsi' and name = 'lisi';
 explain select distinct teacher.name from teacher left join subject on teacher.id = subject.teacher_id;
 ```
 
-
-
 ![image-20211220190315525](mysql_索引.assets/image-20211220190315525.43c223db.png)
 
 **7. Select tables optimized away**
@@ -1166,7 +1055,5 @@ SELECT操作已经优化到不能再优化了（MySQL根本没有遍历表或索
 例子：
 explain select min(id) from subject;
 ```
-
-
 
 ![image-20211220190327314](mysql_索引.assets/image-20211220190327314.2c8c39ce.png)
